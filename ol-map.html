@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.8.1/css/ol.css" type="text/css">
+    <style>
+      .map {
+        height: 100%;
+        width: 100%;
+        /* border: 2px solid red; */
+      }
+      body {
+        /* border: 2px solid yellow; */
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        margin: 0;
+        padding: 0;
+      }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.8.1/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+
+  <body>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+      const originalImage_W_H = [3509, 2481];
+      const deskCords = [
+        [1060, 980],
+        [1120, 980],
+        [1060, 1065],
+        [1120, 1065]
+      ];
+
+      const shiftOrigin = ([x, y]) => [x, originalImage_W_H[1] - y];
+
+      const extent = [0, 0, ...originalImage_W_H];
+      const projection = new ol.proj.Projection({
+        code: "onep-image",
+        units: "pixels",
+        extent: extent
+      });
+
+      const fill = new ol.style.Fill({
+        color: "rgba(255,0,0,0.6)"
+      });
+      const stroke = new ol.style.Stroke({
+        color: "#ff0000",
+        width: 1.25
+      });
+      const markerStyle = new ol.style.Style({
+        image: new ol.style.Circle({
+          fill: fill,
+          stroke: stroke,
+          radius: 10
+        }),
+        fill: fill,
+        stroke: stroke
+      });
+
+      const desks = [];
+      deskCords.forEach((c) => {
+        const desk = new ol.Feature({
+          geometry: new ol.geom.Point(shiftOrigin(c))
+        });
+        desk.setStyle(markerStyle);
+        desks.push(desk);
+      });
+
+      new ol.Map({
+        layers: [
+          new ol.layer.Image({
+            source: new ol.source.ImageStatic({
+              url: "https://oneplatform.cubettech.in/image/get/floor/53",
+              projection: projection,
+              imageExtent: extent
+            })
+          }),
+          new ol.layer.Vector({
+            source: new ol.source.Vector({
+              features: desks
+            })
+          })
+        ],
+        target: "map",
+        view: new ol.View({
+          projection: projection,
+          center: ol.extent.getCenter(extent),
+          zoom: 3,
+          minZoom: 0,
+          maxZoom: 6,
+          extent
+        })
+      });
+
+    </script>
+  </body>
+
+</html>
